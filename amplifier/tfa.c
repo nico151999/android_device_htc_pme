@@ -19,57 +19,50 @@
 
 #include <stdio.h>
 #include <stdlib.h>
-#include <dlfcn.h>
 #include <errno.h>
+#include <unistd.h>
+#include <fcntl.h>
+
 #include <cutils/log.h>
 #include <tinyalsa/asoundlib.h>
 #include "tfa.h"
+#include "tfa9888.h"
+#include "tfa9888-debug.h"
 
 struct tfaS {
     struct mixer *mixer;
-    void *dl;
-    int (*imp_check)(int *, int);
-    int (*htc_set_imp)(int, int);
-    int (*cnt_loadfile)(const char *, int);
+    int fd;
 };
-
-#define DL_LIB "libtfa_vendor_helper.so"
 
 #define SND_CARD        0
 #define AMP_PCM_DEV     47
 #define AMP_MIXER_CTL   "QUAT_MI2S_RX_DL_HL Switch"
 
-
 tfa_t *tfa_new(void)
 {
     struct mixer *mixer;
-    void *dl;
+    int fd;
     tfa_t *t;
-
 
     if ((mixer = mixer_open(SND_CARD)) == NULL) {
         ALOGE("failed to open mixer");
         return NULL;
     }
 
-    if ((dl = dlopen(DL_LIB, RTLD_LOCAL | RTLD_LAZY)) == NULL) {
-        ALOGE("failed to dlopen %s: %s", DL_LIB, dlerror());
+    if ((fd = open("/dev/tfa9888", O_RDWR)) < 0) {
+        ALOGE("failed to open /dev/tfa9888");
         mixer_close(mixer);
         return NULL;
     }
 
     if ((t = malloc(sizeof(*t))) == NULL) {
         ALOGE("out of memory");
-        dlclose(dl);
         mixer_close(mixer);
         return NULL;
     }
 
     t->mixer = mixer;
-    t->dl = dl;
-    t->imp_check = dlsym(dl, "tfa_imp_check");
-    t->htc_set_imp = dlsym(dl, "tfa_htc_set_imp");
-    t->cnt_loadfile = dlsym(dl, "tfa98xx_cnt_loadfile");
+    t->fd = fd;
 
     return t;
 }
@@ -77,13 +70,8 @@ tfa_t *tfa_new(void)
 void tfa_destroy(tfa_t *t)
 {
     mixer_close(0);
-    dlclose(t->dl);
+    close(t->fd);
     free(t);
-}
-
-int tfa_imp_check(tfa_t *t, int *ohm_ret, int is_right)
-{
-    return t->imp_check(ohm_ret, is_right);
 }
 
 static struct pcm_config amp_pcm_config = {
@@ -97,50 +85,130 @@ static struct pcm_config amp_pcm_config = {
     .avail_min = 0,
 };
 
-static int mi2s_en(tfa_t *t, int enable)
+struct pcm *tfa_mi2s_enable(tfa_t *t)
 {
-    enum mixer_ctl_type type;
     struct mixer_ctl *ctl;
     struct pcm *pcm;
+    struct pcm_params *pcm_params;
+
+    ctl = mixer_get_ctl_by_name(t->mixer, AMP_MIXER_CTL);
+    if (ctl == NULL) {
+        ALOGE("%s: Could not find %s\n", __func__, AMP_MIXER_CTL);
+        return NULL;
+    }
+
+    pcm_params = pcm_params_get(SND_CARD, AMP_PCM_DEV, PCM_OUT);
+    if (pcm_params == NULL) {
+        ALOGE("Could not get the pcm_params\n");
+        return NULL;
+    }
+
+    amp_pcm_config.period_count = pcm_params_get_max(pcm_params, PCM_PARAM_PERIODS);
+    printf("period_count = %d\n", amp_pcm_config.period_count);
+    pcm_params_free(pcm_params);
+
+    mixer_ctl_set_value(ctl, 0, 1);
+    pcm = pcm_open(SND_CARD, AMP_PCM_DEV, PCM_OUT, &amp_pcm_config);
+    if (!pcm) {
+        ALOGE("failed to open pcm at all??");
+        return NULL;
+    }
+    if (!pcm_is_ready(pcm)) {
+        ALOGE("failed to open pcm device: %s", pcm_get_error(pcm));
+        pcm_close(pcm);
+        return NULL;
+    }
+
+    return pcm;
+}
+
+int tfa_mi2s_disable(tfa_t *t, struct pcm *pcm)
+{
+    struct mixer_ctl *ctl;
+
+    pcm_close(pcm);
 
     ctl = mixer_get_ctl_by_name(t->mixer, AMP_MIXER_CTL);
     if (ctl == NULL) {
         ALOGE("%s: Could not find %s\n", __func__, AMP_MIXER_CTL);
         return -ENODEV;
+    } else {
+        mixer_ctl_set_value(ctl, 0, 0);
     }
-
-    pcm = pcm_open(SND_CARD, AMP_PCM_DEV, PCM_OUT, &amp_pcm_config);
-    if (! pcm) {
-        ALOGE("failed to open pcm at all??");
-        return -ENODEV;
-    }
-    if (!pcm_is_ready(pcm)) {
-        ALOGE("failed to open pcm device: %s", pcm_get_error(pcm));
-        pcm_close(pcm);
-        return -ENODEV;
-    }
-
-    mixer_ctl_set_value(ctl, 0, enable);
-
-    pcm_close(pcm);
 
     return 0;
 }
 
-int tfa_imp_set(tfa_t *t, int is_right)
+static inline unsigned bf_mask(int bf)
 {
-    int ret;
-
-    mi2s_en(t, 1);
-    ret = t->htc_set_imp(is_right ? 6500 : 7700, is_right);
-    mi2s_en(t, 0);
-
-    return ret;
+    return (1<<((bf&0xf)+1)) - 1;
 }
 
-int
-tfa_cnt_loadfile(tfa_t *t, const char *fname, int dunno)
+static inline unsigned bf_shift(int bf)
 {
-    return t->cnt_loadfile(fname, dunno);
+    return (bf & 0xf0) >> 4;
 }
 
+static inline unsigned bf_register(int bf)
+{
+    return bf >> 8;
+}
+
+int tfa_set_bitfield(tfa_t *t, int bf, unsigned value)
+{
+    unsigned char cmd[4];
+    unsigned old;
+
+    old = tfa_get_register(t, bf_register(bf));
+    old = (old & ~bf_mask(bf)) | ((value & bf_mask(bf)) << bf_shift(bf));
+
+    return tfa_set_register(t, bf_register(bf), old);
+}
+
+int tfa_get_bitfield(tfa_t *t, int bf)
+{
+    int v = tfa_get_register(t, bf_register(bf));
+    if (v < 0) return v;
+    return (v >> bf_shift(bf)) & bf_mask(bf);
+}
+
+int tfa_set_register(tfa_t *t, unsigned reg, unsigned value)
+{
+    unsigned char cmd[3];
+    unsigned old;
+
+    cmd[0] = reg;
+    cmd[1] = value >> 8;
+    cmd[2] = value;
+
+    printf("SET %x: ", reg);
+    tfa9888_print_bitfield(stdout, reg, value);
+
+    return write(t->fd, cmd, 3);
+}
+
+int tfa_get_register(tfa_t *t, unsigned reg)
+{
+    unsigned char buf[2];
+    int res;
+    int v;
+
+    buf[0] = reg;
+    if ((res = write(t->fd, buf, 1)) < 0) return res;
+    if ((res = read(t->fd, buf, 2)) < 0) return res;
+    v = (buf[0]<<8) | buf[1];
+
+    printf("GET %x: ", reg);
+    tfa9888_print_bitfield(stdout, reg, v);
+
+    return v;
+}
+
+int tfa_set_keys(tfa_t *t)
+{
+    unsigned short mtpdataB;
+
+    tfa_set_register(t, 0xf, 23147);
+    mtpdataB = tfa_get_bitfield(t, TFA98XX_BF_MTPDATAB);
+    return tfa_set_register(t, 0xa0, mtpdataB ^ 0x5a);
+}

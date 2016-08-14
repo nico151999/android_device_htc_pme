@@ -1,6 +1,8 @@
 #ifndef __TFA_H__
 #define __TFA_H__
 
+#include <tinyalsa/asoundlib.h>
+
 typedef struct tfaS tfa_t;
 
 struct tfa_profile {
@@ -8,10 +10,17 @@ struct tfa_profile {
 };
 
 tfa_t *tfa_new(void);
-int tfa_imp_check(tfa_t *, int *ohm_ret, int right_amp);
-int tfa_imp_set(tfa_t *, int right_amp);
-int tfa_cnt_loadfile(tfa_t *, const char *fnmae, int dunno);
-int tfa_start(tfa_t *, int something, struct tfa_profile *profile);
+
+struct pcm *tfa_mi2s_enable(tfa_t *);
+int tfa_mi2s_disable(tfa_t *, struct pcm *pcm);
+
+int tfa_set_register(tfa_t *t, unsigned reg, unsigned value);
+int tfa_get_register(tfa_t *t, unsigned reg);
+int tfa_set_bitfield(tfa_t *, int bf, unsigned value);
+int tfa_get_bitfield(tfa_t *, int bf);
+
+int tfa_set_keys(tfa_t *);
+
 void tfa_destroy(tfa_t *);
 
 #endif

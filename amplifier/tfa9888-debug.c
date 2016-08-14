@@ -2,19 +2,8 @@
 #include <assert.h>
 #include "tfa9888.h"
 
-/* bit fields (bits numbered from 1)
- * reg bit name
- * --- --- ----
- * 00   5  MUTE
- * 01   4? NOCLK or [ probably this one becasue it switches from 1 to 0 on init]
- * 01  11? NOCLK
- *         MANSTATE
- */
-
-#define FULL_NAME(a) TFA98XX_BF_ ##a
-#define BITFIELD(a) { FULL_NAME(a), #a }
-struct {
-    int bf;
+static struct {
+    unsigned bf;
     const char *name;
 } bitfields[] = {
     { TFA98XX_BF_POWERDOWN, "powerdown" },
@@ -665,24 +654,13 @@ struct {
     { TFA98XX_BF_MTPDATAE, "mtpdataE" },
     { TFA98XX_BF_CALIBR_OSC_DELTA_NDIV, "calibr_osc_delta_ndiv" },
 };
-size_t n_bitfields = 647;
+static size_t n_bitfields = 647;
 
-static int read_one_inverted_byte()
+void tfa9888_print_bitfield(FILE *f, unsigned reg, unsigned v)
 {
-    int v = getc(stdin);
-    if (v == EOF) return v;
-    return ((v & 0xf) << 4) | (v >> 4);
-}
+    size_t i;
 
-static void dump_bitfield(int reg)
-{
-    int i, v, v1, v2;
-
-    v1 = read_one_inverted_byte();
-    v2 = read_one_inverted_byte();
-    v = v2 | (v1 << 8);
-
-    printf(" %02x", v);
+    fprintf(f, " %02x", v);
     for (i = 0; i < n_bitfields; i++) {
         if (reg == bitfields[i].bf >> 8) {
             int shift = (bitfields[i].bf & 0xf0) >> 4;
@@ -690,42 +668,8 @@ static void dump_bitfield(int reg)
             int mask = (1<<nbits)-1;
             int bits = (v >> shift) & mask;
 
-            if (bits) printf(" %s:%d", bitfields[i].name, bits);
+            if (bits) fprintf(f, " %s:%d", bitfields[i].name, bits);
         }
     }
-    printf("\n");
-}
-
-int main()
-{
-    int c, l, d, i;
-    int get_reg = -1;
-
-    while((c = getc(stdin)) != EOF && (l = getc(stdin)) != EOF) {
-        if (c == 1 && l == 1) {
-            if (get_reg != -1) printf("**** ERROR DECODING ****\n");
-            get_reg = read_one_inverted_byte();
-            continue;
-        } else if (get_reg != -1 && c == 0) {
-            if (get_reg == 0x30) {
-                printf("get REV");
-            } else if (l == 2) {
-                printf("get %x", get_reg);
-                dump_bitfield(get_reg);
-                get_reg = -1;
-                continue;
-            }
-            get_reg = -1;
-        } else if (c == 1 && l == 3) {
-            d = read_one_inverted_byte();
-            printf("SET %x", d);
-            dump_bitfield(d);
-            continue;
-        } else {
-            printf("%s", c ? "WR " : "rd ");
-        }
-        for (i = 0; i < l && (d = read_one_inverted_byte()) != EOF; i++) printf(" %02x", d);
-        if (c == 0 || l > 1) printf("\n");
-        else printf("\t");
-    }
+    fprintf(f, "\n");
 }
