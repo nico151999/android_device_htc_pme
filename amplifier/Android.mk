@@ -29,7 +29,7 @@ LOCAL_C_INCLUDES := \
 	hardware/libhardware/include
 
 LOCAL_SRC_FILES := \
-	play.c tfa9888-debug.c tfa.c
+	play.c tfa9888-debug.c tfa.c tfa-cont.c
 
 LOCAL_MODULE := play
 LOCAL_MODULE_TAGS := optional
