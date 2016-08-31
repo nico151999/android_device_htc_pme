@@ -13,15 +13,13 @@ tfa_t *tfa_new(void);
 
 struct pcm *tfa_mi2s_enable(tfa_t *);
 int tfa_mi2s_disable(tfa_t *, struct pcm *pcm);
-struct pcm *tfa_power_on(tfa_t *);
-void tfa_power_off(tfa_t *, struct pcm *);
 
 int tfa_set_register(tfa_t *t, unsigned reg, unsigned value);
 int tfa_get_register(tfa_t *t, unsigned reg);
 int tfa_set_bitfield(tfa_t *, int bf, unsigned value);
 int tfa_get_bitfield(tfa_t *, int bf);
 
-int tfa_startup(tfa_t *);
+int tfa_set_keys(tfa_t *);
 
 void tfa_destroy(tfa_t *);
 

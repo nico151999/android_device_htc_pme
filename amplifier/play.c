@@ -4,7 +4,6 @@
 #include <unistd.h>
 #include <fcntl.h>
 #include "tfa.h"
-#include "tfa-cont.h"
 #include "tfa9888.h"
 #include "tfa9888-debug.h"
 
@@ -21,27 +20,49 @@ int main()
 {
     time_t start = time(NULL);
     struct pcm *pcm;
-    tfa_cont_t *tc;
 
     t = tfa_new();
-    if (! t) exit(1);
-
-    tc = tfa_cont_new("/system/etc/Tfa98xx.cnt");
-    if (! tc) exit(1);
-
-{
-int profile = tfa_cont_get_cal_profile(tc);
-    printf("Calibration: %d: %s\n", profile, tfa_cont_get_profile_name(tc, profile));
-exit(0);
-}
 
     printf("revision: %x\n", tfa_get_bitfield(t, TFA98XX_BF_DEVICE_REV));
 
-    tfa_startup(t);
+    printf("Enabling clocks\n");
+    pcm = tfa_mi2s_enable(t);
+
+    dump_reg(0x5a);
+    dump_reg(0x10);
+
+    tfa_set_register(t, 0, 0x02);               // RESET
+
+    dump_reg(1);
+
+    tfa_set_bitfield(t, TFA98XX_BF_CF_RST_DSP, 1);
+    tfa_set_keys(t);
+
+    tfa_set_register(t, 0x00, 0x164d);
+    tfa_set_register(t, 0x01, 0x828b);
+    tfa_set_register(t, 0x02, 0x1dc8);
+    tfa_set_register(t, 0x0e, 0x80);
+    tfa_set_register(t, 0x20, 0x89e);
+    tfa_set_register(t, 0x22, 0x543c);
+    tfa_set_register(t, 0x23, 0x06);
+    tfa_set_register(t, 0x24, 0x14);
+    tfa_set_register(t, 0x25, 0x0a);
+    tfa_set_register(t, 0x26, 0x100);
+    tfa_set_register(t, 0x28, 0x1000);
+    tfa_set_register(t, 0x51, 0x00);
+    tfa_set_register(t, 0x52, 0xfafe);
+    tfa_set_register(t, 0x70, 0x3ee4);
+    tfa_set_register(t, 0x71, 0x1074);
+    tfa_set_register(t, 0x83, 0x14);
+
+    dump_reg(2);
+    dump_reg(0x20);
+
+    printf("Disabling clocks\n");
+    tfa_mi2s_disable(t, pcm);
 
     printf("nEnabling clocks\n");
     pcm = tfa_mi2s_enable(t);
-    tfa_set_bitfield(t, TFA98XX_BF_POWERDOWN, 0);
     printf("\n\nWaiting for clocks\n");
     while (time(NULL) - start < 10 && tfa_get_bitfield(t, TFA98XX_BF_FLAG_LOST_CLK)) sleep(1);
     printf("Clocks enabled, powering up\n");
