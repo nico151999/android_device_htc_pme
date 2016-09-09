@@ -127,6 +127,9 @@ BOARD_HARDWARE_CLASS += \
     $(DEVICE_PATH)/cmhw \
     hardware/cyanogen/cmhw
 
+# CNE
+TARGET_LDPRELOAD := libNimsWrap.so
+
 # Display
 NUM_FRAMEBUFFER_SURFACE_BUFFERS := 3
 TARGET_FORCE_HWC_FOR_VIRTUAL_DISPLAYS := true
@@ -171,9 +174,6 @@ TARGET_USES_NQ_NFC := true
 
 # Power
 TARGET_POWERHAL_VARIANT := qcom
-
-# Properties
-TARGET_SYSTEM_PROP := $(DEVICE_PATH)/system.prop
 
 # Qualcomm
 BOARD_USES_QCOM_HARDWARE := true
