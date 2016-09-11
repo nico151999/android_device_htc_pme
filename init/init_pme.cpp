@@ -101,6 +101,7 @@ void vendor_load_properties()
             property_set("ro.ril.enable.isr", "1");
             property_set("ro.ril.gsm.to.lte.blind.redir", "0");
             property_set("ro.ril.hsdpa.dbdc", "1");
+            property_set("persist.radio.current.cnv", "0");
         } else if (strstr(bootcid, "HTC__002")) {
             gsm_properties("9");
             property_set("ro.product.model", "HTC 10");
@@ -122,6 +123,7 @@ void vendor_load_properties()
             property_set("ro.ril.gsm.to.lte.blind.redir", "1");
             property_set("ro.ril.enable.isr", "1");
             property_set("ro.ril.hsdpa.dbdc", "1");
+            property_set("persist.radio.current.cnv", "0");
         } else if (strstr(bootcid, "HTC__016")) {
             gsm_properties("9");
             property_set("ro.product.model", "HTC 10");
@@ -143,6 +145,7 @@ void vendor_load_properties()
             property_set("ro.ril.enable.isr", "1");
             property_set("ro.ril.disable.cpc", "0");
             property_set("ro.ril.hsdpa.dbdc", "1");
+            property_set("persist.radio.current.cnv", "0");
         } else if (strstr(bootcid, "HTC__034")) {
             gsm_properties("9");
             property_set("ro.product.model", "HTC 10");
@@ -162,6 +165,7 @@ void vendor_load_properties()
             property_set("ro.ril.gsm.to.lte.blind.redir", "1");
             property_set("ro.ril.enable.isr", "1");
             property_set("ro.ril.hsdpa.dbdc", "1");
+            property_set("persist.radio.current.cnv", "0");
         } else if (strstr(bootcid, "HTC__A07")) {
             gsm_properties("9");
             property_set("ro.product.model", "HTC 10");
@@ -182,6 +186,7 @@ void vendor_load_properties()
             property_set("ro.ril.gsm.to.lte.blind.redir", "1");
             property_set("ro.ril.enable.isr", "1");
             property_set("ro.ril.hsdpa.dbdc", "1");
+            property_set("persist.radio.current.cnv", "0");
         } else if (strstr(bootcid, "HTC__J15")) {
             gsm_properties("9");
             property_set("ro.product.model", "HTC 10");
@@ -201,6 +206,7 @@ void vendor_load_properties()
             property_set("ro.ril.gsm.to.lte.blind.redir", "1");
             property_set("ro.ril.enable.isr", "1");
             property_set("ro.ril.hsdpa.dbdc", "1");
+            property_set("persist.radio.current.cnv", "0");
         } else if (strstr(bootcid, "HTC__M27")) {
             gsm_properties("9");
             property_set("ro.product.model", "HTC 10");
@@ -219,6 +225,7 @@ void vendor_load_properties()
             property_set("ro.ril.gsm.to.lte.blind.redir", "1");
             property_set("ro.ril.enable.isr", "1");
             property_set("ro.ril.hsdpa.dbdc", "1");
+            property_set("persist.radio.current.cnv", "0");
         } else if (strstr(bootcid, "HTC__039")) {
             gsm_properties("9");
             property_set("ro.product.model", "HTC 10");
