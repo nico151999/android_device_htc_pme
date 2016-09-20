@@ -23,11 +23,11 @@
 #include <cutils/str_parms.h>
 
 #include <hardware/audio_amplifier.h>
+#include <msm8974/platform.h>
 #include <system/audio.h>
 
 #include "tfa.h"
 #include "tfa-cont.h"
-#include "snd_device.h"
 
 #define UNUSED __attribute__ ((unused))
 
