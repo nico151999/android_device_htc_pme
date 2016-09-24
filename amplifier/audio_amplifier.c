@@ -50,8 +50,6 @@ static int amp_set_mode(struct amplifier_device *device, audio_mode_t mode)
     return ret;
 }
 
-#define TFA_DEVICE_MASK (AUDIO_DEVICE_OUT_EARPIECE | AUDIO_DEVICE_OUT_SPEAKER)
-
 #define PROFILE_MUSIC           0
 #define PROFILE_RINGTONE        1
 #define PROFILE_FM              2
@@ -130,7 +128,7 @@ static int select_profile(audio_mode_t mode, uint32_t snd_device)
 {
     uint32_t device_class = classify_snd_device(snd_device);
 
-    ALOGV("%s: mode %d devices 0x%x", __func__, mode, snd_device);
+    ALOGV("%s: mode %d devices 0x%x class %d", __func__, mode, snd_device, device_class);
     switch(mode) {
     case AUDIO_MODE_RINGTONE:
         return PROFILE_RINGTONE;
@@ -171,6 +169,7 @@ static int amp_enable_output_devices(struct amplifier_device *device, uint32_t s
         if (!dev->pcm) {
             dev->pcm = tfa_clocks_on(dev->tfa);
         }
+        ALOGV("%s: starting profile %d vstep <hardcoded to 0>", __func__, profile);
         tfa_start(dev->tfa, dev->tc, profile, 0);
     }
 
