@@ -46,7 +46,6 @@ public class KeyHandler implements DeviceKeyHandler {
     }
 
     public boolean handleKeyEvent(KeyEvent event) {
-        boolean goHome = false;
         long[] hapticPattern;
         if (event.getKeyCode() != KeyEvent.KEYCODE_WAKEUP) {
             return false;
@@ -54,22 +53,14 @@ public class KeyHandler implements DeviceKeyHandler {
         if (event.getAction() != KeyEvent.ACTION_DOWN) {
             return false;
         }
-        /*
-         * TODO: Fix long press detection, add double tap detection
-         */
-        if ((event.getFlags() & KeyEvent.FLAG_LONG_PRESS) != 0) {
-            hapticPattern = getLongIntArray(mContext.getResources(),
-                com.android.internal.R.array.config_longPressVibePattern);
-        } else {
-            // Assume single press
-            goHome = true;
-            hapticPattern = getLongIntArray(mContext.getResources(),
-                com.android.internal.R.array.config_virtualKeyVibePattern);
-        }
+
+        // TODO: Fix long press detection, add double tap detection
+
+        // Assume single press
+        hapticPattern = getLongIntArray(mContext.getResources(),
+            com.android.internal.R.array.config_virtualKeyVibePattern);
         doHapticFeedback(hapticPattern);
-        if (goHome) {
-            launchHomeIntent();
-        }
+        launchHomeIntent();
         return true;
     }
 

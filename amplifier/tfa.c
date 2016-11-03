@@ -28,6 +28,9 @@
 #include <tinyalsa/asoundlib.h>
 #include "tfa.h"
 #include "tfa9888.h"
+#include "tfa9888-debug.h"
+
+#define TRACE_REGISTERS 0
 
 #define UNUSED __attribute__ ((unused))
 
@@ -273,6 +276,11 @@ void tfa_set_register(tfa_t *t, unsigned reg, unsigned value)
     cmd[1] = value >> 8;
     cmd[2] = value;
 
+    if (TRACE_REGISTERS) {
+        char *str = tfa9888_reg_to_string(reg, value);
+        ALOGI("%s", str);
+        free(str);
+    }
     write(t->fd, cmd, 3);
 }
 
@@ -461,8 +469,7 @@ static void speaker_boost(tfa_t *t, tfa_cont_t *tc, int force_startup, int profi
         cold_startup(t, tc, profile_num);
     }
 
-    if (!t->speaker_boost_initialized || tfa_get_bitfield(t, BF_FLAG_COLD_STARTED)) {
-        t->speaker_boost_initialized = 1;
+    if (tfa_get_bitfield(t, BF_FLAG_COLD_STARTED)) {
         int swvstep = speaker_startup(t, tc, force_startup, profile_num);
         tfa_set_swprof(t, profile_num);
         tfa_set_swvstep(t, swvstep);
