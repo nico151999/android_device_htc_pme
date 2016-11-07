@@ -201,8 +201,6 @@ WIFI_DRIVER_FW_PATH_STA     := "/system/etc/firmware/fw_bcm4359.bin"
 # inherit from the proprietary version
 -include vendor/htc/pme/BoardConfigVendor.mk
 
-use_clang := false
-
 $(shell mkdir -p $(ANDROID_BUILD_TOP)/out/target/product/pme/obj/SHARED_LIBRARIES/libdhcpcd_intermediates)
 $(shell mkdir -p $(ANDROID_BUILD_TOP)/out/target/product/pme/obj/lib)
 $(shell touch $(ANDROID_BUILD_TOP)/out/target/product/pme/obj/SHARED_LIBRARIES/libdhcpcd_intermediates/export_includes)
