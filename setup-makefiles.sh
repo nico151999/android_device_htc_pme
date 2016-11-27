@@ -122,20 +122,6 @@ LOCAL_CERTIFICATE := platform
 include \$(BUILD_PREBUILT)
 
 include \$(CLEAR_VARS)
-LOCAL_MODULE := libmm-disp-apis
-LOCAL_MODULE_CLASS := SHARED_LIBRARIES
-LOCAL_MODULE_OWNER := $VENDOR
-LOCAL_MODULE_PATH_64 := \$(TARGET_OUT_VENDOR_SHARED_LIBRARIES)
-LOCAL_MODULE_PATH_32 := \$(2ND_TARGET_OUT_VENDOR_SHARED_LIBRARIES)
-LOCAL_MODULE_SUFFIX := .so
-LOCAL_MODULE_TAGS := optional
-LOCAL_MULTILIB := both
-LOCAL_PROPRIETARY_MODULE := true
-LOCAL_SRC_FILES_64 := proprietary/vendor/lib64/libmm-disp-apis.so
-LOCAL_SRC_FILES_32 := proprietary/vendor/lib/libmm-disp-apis.so
-include \$(BUILD_PREBUILT)
-
-include \$(CLEAR_VARS)
 LOCAL_MODULE := libtime_genoff
 LOCAL_MODULE_CLASS := SHARED_LIBRARIES
 LOCAL_MODULE_OWNER := $VENDOR
@@ -165,4 +151,5 @@ include \$(BUILD_PREBUILT)
 
 endif
 
+printf '\n%s\n' "\$(call inherit-product, vendor/qcom/binaries/msm8996/graphics/graphics-vendor.mk)" >> "$PRODUCTMK"
 EOF
