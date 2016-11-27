@@ -15,12 +15,6 @@
 $(call inherit-product, device/htc/pme/full_pme.mk)
 $(call inherit-product, vendor/beanstalk/config/common_full_phone.mk)
 
-<<<<<<< HEAD
-# Enhanced NFC
-$(call inherit-product, vendor/beanstalk/config/nfc_enhanced.mk)
-
-=======
->>>>>>> 1f1dbd3... pme: Remove enhanced NFC feature
 ## Device identifier. This must come after all inclusions
 PRODUCT_DEVICE := pme
 PRODUCT_NAME := bs_pme
