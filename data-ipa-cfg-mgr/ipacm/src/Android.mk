@@ -10,6 +10,7 @@ LOCAL_C_INCLUDES += external/icu/icu4c/source/common
 else
 LOCAL_C_INCLUDES += external/icu4c/common
 endif
+LOCAL_C_INCLUDES += external/dhcpcd
 LOCAL_C_INCLUDES += external/libxml2/include
 LOCAL_C_INCLUDES += external/libnetfilter_conntrack/include
 LOCAL_C_INCLUDES += external/libnfnetlink/include
@@ -22,6 +23,10 @@ LOCAL_CFLAGS := -v
 LOCAL_CFLAGS += -DFEATURE_IPA_ANDROID
 ifneq (,$(filter userdebug eng, $(TARGET_BUILD_VARIANT)))
 LOCAL_CFLAGS += -DDEBUG
+endif
+
+ifeq ($(TARGET_BOARD_PLATFORM),msm8998)
+LOCAL_CFLAGS += -DFEATURE_IPA_V3
 endif
 
 filetoadd = bionic/libc/kernel/arch-arm/asm/posix_types.h
@@ -57,6 +62,7 @@ LOCAL_SHARED_LIBRARIES := libipanat
 LOCAL_SHARED_LIBRARIES += libxml2
 LOCAL_SHARED_LIBRARIES += libnfnetlink
 LOCAL_SHARED_LIBRARIES += libnetfilter_conntrack
+LOCAL_SHARED_LIBRARIES += libdhcpcd
 include $(BUILD_EXECUTABLE)
 
 ################################################################################
