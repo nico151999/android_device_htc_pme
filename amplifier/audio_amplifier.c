@@ -27,21 +27,13 @@
 #include <system/audio.h>
 
 #include "tfa.h"
-#include "tfa-cont.h"
-#include "tfa9888.h"
-
-#define VSTEP                   0
-#define FORCED_GAIN             75
-#define FORCED_GAIN_EARPIECE    100
 
 #define UNUSED __attribute__ ((unused))
 
 typedef struct amp_device {
     amplifier_device_t amp_dev;
     tfa_t *tfa;
-    tfa_cont_t *tc;
     audio_mode_t mode;
-    struct pcm *pcm;
 } amp_device_t;
 
 static amp_device_t *amp_dev = NULL;
@@ -140,11 +132,16 @@ static int select_profile(audio_mode_t mode, uint32_t snd_device)
     case AUDIO_MODE_IN_COMMUNICATION:
         return PROFILE_VOIP;
     case AUDIO_MODE_NORMAL:
-    case AUDIO_MODE_IN_CALL:
         if (device_class == IS_EARPIECE) {
             return PROFILE_HANDSET;
         } else if (device_class == IS_SPEAKER) {
             return PROFILE_MUSIC;
+        }
+    case AUDIO_MODE_IN_CALL:
+        if (device_class == IS_EARPIECE) {
+            return PROFILE_HANDSET;
+        } else if (device_class == IS_SPEAKER) {
+            return PROFILE_HANDSFREE_WB;
         }
     default:
         switch(device_class) {
@@ -160,43 +157,11 @@ static int select_profile(audio_mode_t mode, uint32_t snd_device)
     }
 }
 
-static void do_set_gain(amp_device_t *amp_dev, uint32_t gain)
-{
-    ALOGV("setting gain to %u", gain);
-    tfa_set_bitfield(amp_dev->tfa, BF_GAIN, gain);
-}
-
-static void set_gain(amp_device_t *dev, uint32_t snd_device)
-{
-    switch(classify_snd_device(snd_device)) {
-    case IS_EARPIECE:
-        do_set_gain(dev, FORCED_GAIN_EARPIECE);
-        break;
-    default:
-        do_set_gain(dev, FORCED_GAIN);
-        break;
-    }
-}
-
-static int amp_enable_output_devices(struct amplifier_device *device, uint32_t snd_device, bool enable)
+static int amp_enable_output_devices(struct amplifier_device *device, uint32_t snd_device, bool enable UNUSED)
 {
     amp_device_t *dev = (amp_device_t *) device;
     int profile = select_profile(dev->mode, snd_device);
-    if (profile < 0 || !enable) {
-        if (dev->pcm) {
-            tfa_clocks_off(dev->tfa, dev->pcm);
-            tfa_stop(dev->tfa);
-            dev->pcm = NULL;
-        }
-    } else {
-        if (!dev->pcm) {
-            dev->pcm = tfa_clocks_on(dev->tfa);
-        }
-        ALOGV("%s: starting profile %d vstep <hardcoded to %d>", __func__, profile, VSTEP);
-        tfa_start(dev->tfa, dev->tc, profile, VSTEP);
-        set_gain(dev, snd_device);
-    }
-
+    tfa_apply_profile(dev->tfa, profile);
     return 0;
 }
 
@@ -205,8 +170,6 @@ static int amp_dev_close(hw_device_t *device)
     amp_device_t *dev = (amp_device_t *) device;
 
     tfa_destroy(dev->tfa);
-    tfa_cont_destroy(dev->tc);
-
     free(dev);
 
     return 0;
@@ -216,11 +179,11 @@ static void init(void)
 {
     struct pcm *pcm;
 
+    ALOGI("Initializing");
+    tfa_apply_profile(amp_dev->tfa, PROFILE_MUSIC);
     pcm = tfa_clocks_on(amp_dev->tfa);
-    tfa_start(amp_dev->tfa, amp_dev->tc, 0, 0);
+    ALOGI("Init successful: %d", tfa_wait_for_init(amp_dev->tfa));
     tfa_clocks_off(amp_dev->tfa, pcm);
-
-    tfa_stop(amp_dev->tfa);
 }
 
 static int amp_module_open(const hw_module_t *module, const char *name UNUSED,
@@ -228,7 +191,6 @@ static int amp_module_open(const hw_module_t *module, const char *name UNUSED,
 {
     int ret;
     tfa_t *tfa;
-    tfa_cont_t *tc;
 
     if (amp_dev) {
         ALOGE("%s:%d: Unable to open second instance of the amplifier\n", __func__, __LINE__);
@@ -238,12 +200,6 @@ static int amp_module_open(const hw_module_t *module, const char *name UNUSED,
     tfa = tfa_new();
     if (!tfa) {
         ALOGE("%s:%d: Unable to tfa lib\n", __func__, __LINE__);
-        return -ENOENT;
-    }
-    tc = tfa_cont_new("/system/etc/Tfa98xx.cnt");
-    if (!tc) {
-        ALOGE("%s:%d: Unable to open tfa container\n", __func__, __LINE__);
-        tfa_destroy(tfa);
         return -ENOENT;
     }
 
@@ -270,7 +226,6 @@ static int amp_module_open(const hw_module_t *module, const char *name UNUSED,
     amp_dev->amp_dev.input_stream_standby = NULL;
 
     amp_dev->tfa = tfa;
-    amp_dev->tc  = tc;
 
     init();
 
