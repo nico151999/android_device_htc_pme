@@ -100,7 +100,7 @@ PRODUCT_COPY_FILES += \
 
 # Browser
 PRODUCT_PACKAGES += \
-    Gello
+    TugaBrowser
 
 # Camera
 PRODUCT_PACKAGES += \
