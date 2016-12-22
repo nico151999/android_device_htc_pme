@@ -104,7 +104,7 @@ PRODUCT_PACKAGES += \
 
 # Camera
 PRODUCT_PACKAGES += \
-    libshim_camera
+    libshim_camera \
     Snap
 
 # Connectivity Engine support (CNE)
@@ -173,6 +173,10 @@ PRODUCT_COPY_FILES += \
 # IRSC
 PRODUCT_COPY_FILES += \
     $(LOCAL_PATH)/configs/sec_config:system/etc/sec_config
+
+# Kernel Modification
+PRODUCT_PACKAGES += \
+    KernelAdiutor
 
 # Lights
 PRODUCT_PACKAGES += \
