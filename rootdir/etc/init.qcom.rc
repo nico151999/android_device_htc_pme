@@ -44,7 +44,7 @@ on early-init
     chmod 0755 /sys/kernel/debug
 
 on init
-    export LD_SHIM_LIBS "/system/lib/liblog.so|/system/lib/liblog_htc.so:/system/lib64/liblog.so|/system/lib64/liblog_htc.so:/system/lib/libBeautyChat.so|/system/lib/libshim_camera.so:/system/lib/libpower.so|/system/lib/libshim_power.so:/system/lib64/libpower.so|/system/lib64/libshim_power.so"
+    export LD_SHIM_LIBS "/system/lib/liblog.so|/system/lib/liblog_htc.so:/system/lib64/liblog.so|/system/lib64/liblog_htc.so:/system/lib/libBeautyChat.so|/system/lib/libshim_camera.so:/system/lib/libpower.so|/system/lib/libshim_power.so:/system/lib64/libpower.so|/system/lib64/libshim_power.so:/system/lib64/libril.so|/system/lib64/libshim_ril.so"
 
     # Set permissions for persist partition
     mkdir /persist 0771 system system
@@ -165,8 +165,9 @@ on post-fs-data
     mkdir /data/nfc/param 0770 nfc nfc
 
     # Create directory for perfd
-    mkdir /data/misc/perfd 2755 root system
     mkdir /data/system/perfd 2770 root system
+    rm /data/system/perfd/default_values
+    start perfd
 
     # Create IOP  deamon related dirs
     mkdir /data/misc/iop 0770 root system
@@ -421,12 +422,12 @@ service charger /charger
 service cnd /system/bin/cnd
     class main
     socket cnd stream 660 root inet
-    group root wakelock
     writepid /dev/cpuset/system-background/tasks
 
 service dpmd /system/bin/dpmd
     class late_start
     socket dpmd stream 660 root system
+    group system readproc
     writepid /dev/cpuset/system-background/tasks
 
 service fingerprintd /system/bin/fingerprintd
@@ -495,6 +496,12 @@ service irsc_util /system/bin/irsc_util "/etc/sec_config"
     user root
     oneshot
 
+service loc_launcher /system/bin/loc_launcher
+    # loc_launcher will start as root and set its uid to gps
+    class late_start
+    group gps inet qcom_diag wifi
+    writepid /dev/cpuset/system-background/tasks
+
 service msm_irqbalance /system/bin/msm_irqbalance -f /system/vendor/etc/msm_irqbalance.conf
     class main
     user root
@@ -529,6 +536,7 @@ on property:sys.shutdown.requested=*
 service perfd /system/vendor/bin/perfd
     class main
     user root
+    group root readproc
     socket perfd seqpacket 0666 root system
     disabled
     writepid /dev/cpuset/system-background/tasks
