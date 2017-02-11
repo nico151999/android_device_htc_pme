@@ -141,8 +141,8 @@ PRODUCT_PACKAGES += \
     FlipFlap
 
 # Gallery
-PRODUCT_PACKAGES += \
-    LeafPic
+# PRODUCT_PACKAGES += \
+#     LeafPic
 
 # Gesture Handler
 PRODUCT_PACKAGES += \
