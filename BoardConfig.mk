@@ -198,3 +198,10 @@ WIFI_DRIVER_FW_PATH_STA     := "/system/etc/firmware/fw_bcm4359.bin"
 
 # inherit from the proprietary version
 -include vendor/htc/pme/BoardConfigVendor.mk
+
+# Enable Snapdragon LLVM
+ifneq ($(HOST_OS),darwin)
+SDCLANG := true
+SDCLANG_PATH := prebuilts/clang/linux-x86/host/sdclang-3.8/bin
+SDCLANG_LTO_DEFS := device/qcom/common/sdllvm-lto-defs.mk
+endif
