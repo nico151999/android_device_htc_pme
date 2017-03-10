@@ -202,6 +202,9 @@ WIFI_DRIVER_FW_PATH_STA     := "/system/etc/firmware/fw_bcm4359.bin"
 # Enable Snapdragon LLVM
 ifneq ($(HOST_OS),darwin)
 SDCLANG := true
+USE_CLANG_QCOM_VERBOSE := true
+CLANG_QCOM_COMPILE_ART := true
+CLANG_QCOM_COMPILE_BIONIC := true
 SDCLANG_PATH := prebuilts/clang/linux-x86/host/sdclang-3.8/bin
 SDCLANG_LTO_DEFS := device/qcom/common/sdllvm-lto-defs.mk
 endif
