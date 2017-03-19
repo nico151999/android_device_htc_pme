@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+
+    <!-- Entwickler -->
+    <string name="information_about_developer">Information über den Entwickler</string>
+    <string name="developer_description">Ich bin ein deutscher Junge, der aus Spaß ROMs, vorwiegend Beanstalk, kompiliert und mit der Community teilt. Dabei füge ich zwar einige Features zur ROM hinzu, möchte aber auch keineswegs die Leistung von Scott, dem Hauptentwickler von Beanstalk in den Schatten stellen. Ich hoffe die Nutzung meiner Builds macht Ihnen Spaß. Deshalb würde ich mich auch über eine Spende freuen.</string>
+
+</resources>
