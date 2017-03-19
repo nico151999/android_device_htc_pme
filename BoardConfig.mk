@@ -203,3 +203,6 @@ WIFI_DRIVER_FW_PATH_STA     := "/system/etc/firmware/fw_bcm4359.bin"
 ifneq ($(HOST_OS),darwin)
 TARGET_USE_SDCLANG := true
 endif
+
+# Use Lineage SU
+WITH_SU := true
