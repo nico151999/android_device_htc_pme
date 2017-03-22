@@ -114,3 +114,5 @@ ro.device.gpu=Adreno 530
 ro.device.front_cam=12 MP
 ro.device.rear_cam=5 MP
 ro.device.screen_res=1440x2560
+
+ro.product.model=HTC 10
