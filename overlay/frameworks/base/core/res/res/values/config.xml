@@ -327,6 +327,6 @@
     <bool name="config_LTE_eri_for_network_name">false</bool>
 
     <!-- Wether device has hvdcp charging support -->
-    <bool name="config_hasHvdcpCharger">true</bool>
+    <add-resource type="bool" name="config_hasHvdcpCharger">true</add-resource>
 
 </resources>

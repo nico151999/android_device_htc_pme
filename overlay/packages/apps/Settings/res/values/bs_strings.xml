@@ -17,7 +17,7 @@
 <resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
 
     <!-- Developer -->
-    <string name="information_about_developer">Information about the developer</string>
-    <string name="developer_description">I am a German boy maintaining and developing ROMs, especially Beanstalk, for fun. If the builds I made seem stable to me I share them with the community. Though I add many features to my builds the work of the main developer of Beanstalk Scott must not be diminished.</string>
+    <add-resource type="string" name="information_about_developer">Information about the developer</add-resource>
+    <add-resource type="string" name="developer_description">I am a German boy maintaining and developing ROMs, especially Beanstalk, for fun. If the builds I made seem stable to me I share them with the community. Though I add many features to my builds the work of the main developer of Beanstalk Scott must not be diminished.</add-resource>
 
 </resources>
