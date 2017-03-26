@@ -110,7 +110,7 @@ PRODUCT_COPY_FILES += \
 
 # Browser
 PRODUCT_PACKAGES += \
-    TugaBrowser
+    SWE
 
 # Camera
 PRODUCT_PACKAGES += \
@@ -214,10 +214,6 @@ PRODUCT_PACKAGES += \
 # Lights
 PRODUCT_PACKAGES += \
     lights.msm8996
-
-# Mail
-PRODUCT_PACKAGES += \
-    GMail
 
 # Media
 PRODUCT_COPY_FILES += \
