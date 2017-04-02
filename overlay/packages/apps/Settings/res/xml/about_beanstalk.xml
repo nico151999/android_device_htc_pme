@@ -74,13 +74,13 @@
 
     <add-resource type="PreferenceCategory"
         android:key="developer_information"
-        android:title="@string/information_about_developer">
+        android:title="Information about the developer">
 
         <!-- developer information -->
         <Preference
             android:key="developer"
             android:title="Krassermensch"
-            android:summary="@string/developer_description" />
+            android:summary="I am a German boy maintaining and developing ROMs, especially Beanstalk, for fun. If the builds I made seem stable to me I share them with the community. Though I add many features to my builds the work of the main developer of Beanstalk Scott must not be diminished." />
 
     </add-resource>
 
