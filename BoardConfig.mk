@@ -209,4 +209,4 @@ TARGET_USE_SDCLANG := true
 endif
 
 # Use Lineage SU
-WITH_SU := true
+USE_SU := true
