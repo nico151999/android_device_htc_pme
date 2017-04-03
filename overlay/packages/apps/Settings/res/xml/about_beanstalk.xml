@@ -64,7 +64,7 @@
             android:title="@string/beanstalk_source_title"
             android:summary="@string/beanstalk_source_summary" />
 
-        <!-- Facebook -->
+        <!-- GooglePlus -->
         <Preference
             android:key="beanstalk_facebook"
             android:title="@string/beanstalk_facebook_title"
@@ -72,7 +72,7 @@
 
     </PreferenceCategory>
 
-    <add-resource type="PreferenceCategory"
+    <PreferenceCategory
         android:key="developer_information"
         android:title="Information about the developer">
 
@@ -82,7 +82,7 @@
             android:title="Krassermensch"
             android:summary="I am a German boy maintaining and developing ROMs, especially Beanstalk, for fun. If the builds I made seem stable to me I share them with the community. Though I add many features to my builds the work of the main developer of Beanstalk Scott must not be diminished." />
 
-    </add-resource>
+    </PreferenceCategory>
 
 </PreferenceScreen>
 

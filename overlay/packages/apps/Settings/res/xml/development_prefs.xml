@@ -19,6 +19,17 @@
         android:title="@string/development_settings_title">
 
     <PreferenceScreen
+            android:key="kernel_adiutor"
+            android:title="Kernel Adiutor">
+
+        <intent
+                android:action="android.intent.action.MAIN"
+                android:targetPackage="com.grarak.kerneladiutor"
+                android:targetClass="com.grarak.kerneladiutor.activities.MainActivity" />
+
+    </PreferenceScreen>
+
+    <PreferenceScreen
             android:key="development_tools"
             android:title="@string/development_tools_title"
             android:persistent="false" >
@@ -27,15 +38,6 @@
                 android:targetPackage="com.android.development"
                 android:targetClass="com.android.development.Development" />
     </PreferenceScreen>
-
-    <add-resource type="PreferenceScreen"
-            android:key="kernel_adiutor"
-            android:title="Kernel Adiutor">
-        <intent
-                android:action="android.intent.action.MAIN"
-                android:targetPackage="com.grarak.kerneladiutor"
-                android:targetClass="com.grarak.kerneladiutor.activities.MainActivity" />
-    </add-resource>
 
    <!-- <com.android.settings.BugreportPreference
             android:key="bugreport"
