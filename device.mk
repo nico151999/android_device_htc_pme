@@ -297,3 +297,7 @@ PRODUCT_COPY_FILES += \
 # KeyHandler
 PRODUCT_PACKAGES += \
     com.cyanogenmod.keyhandler
+
+
+# Use Lineage SU
+USE_SU := true
